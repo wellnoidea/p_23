@@ -1,0 +1,38 @@
+# p_23
+fooling around
+
+waypoints:
+
+1st
+	create github repository
+	trivial
+	
+2nd
+	check out
+	git clone https://github.com/wellnoidea/p_23
+
+3rd
+	commit changes
+	$ git add *
+	$ git git commit -m "Commit message"
+	$ git push
+	
+4th
+	√ create index.html
+		+ √ add HTML boilerplate
+	√ add canvas
+		<canvas id="canvas" width="200" height="100"></canvas>
+	√ add request animation frame
+		+ √ add a script, ANY script
+		+ √ load a script file
+			<script src="script.js"></script>
+			! src!
+		+ √ add a thing, ANY thing
+			var canvas = document.getElementById('canvas');
+			var context = canvas.getContext('2d');
+			context.fillStyle = '#00FF00';
+			context.fillRect(0, 0, 50, 50);
+		+ √ add request animation frame
+	√ add moving ‘thing‘
+	
+	
