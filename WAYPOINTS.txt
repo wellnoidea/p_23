@@ -5,17 +5,17 @@ waypoints:
 
 1st
 	create github repository
-	trivial
+		point and click
 	
 2nd
 	check out
-	git clone https://github.com/wellnoidea/p_23
+		git clone https://github.com/wellnoidea/p_23
 
 3rd
 	commit changes
-	$ git add *
-	$ git git commit -m "Commit message"
-	$ git push
+		$ git add *
+		$ git git commit -m "Commit message"
+		$ git push
 	
 4th
 	√ create index.html
@@ -34,5 +34,21 @@ waypoints:
 			context.fillRect(0, 0, 50, 50);
 		+ √ add request animation frame
 	√ add moving ‘thing‘
+	
+5th
+	· add a git branching concept
+		· READ: https://git-scm.com/book/de/v1/Git-Branching-Einfaches-Branching-und-Merging
+
+...th
+
+	· how do I revert to a certain commit?
+	· move the object by keys
+	· add other objects
+	· let the multiple objects interact somehow 
+	· let the screen follow the central object
+	· come up with a concept for a GUI
+		· divs in front of the canvas?
+	
+
 	
 	
