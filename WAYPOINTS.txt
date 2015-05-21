@@ -14,7 +14,7 @@ waypoints:
 3rd
 	commit changes
 		$ git add *
-		$ git git commit -m "Commit message"
+		$ git commit -m "Commit message"
 		$ git push
 	
 4th
@@ -36,11 +36,43 @@ waypoints:
 	√ add moving ‘thing‘
 	
 5th
+	√ add hosting on a droplet
+		+ X add SSH key
+			Enter file in which to save the key (/Users/swerner/.ssh/id_rsa): p_23
+			read: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2
+		+ √ how to SSH (?)
+		
+6th
+	X Does a bash script make sense therefore?
+		no, digitalocean seems to provide all the necessary functions
+		
+7th
+	get JSlint running
+		+ √ install via npm
+			sudo npm install jslint
+		+ √ add a bash alias to ~/.bash_profile
+			alias jsl='~/node_modules/jslint/bin/jslint.js'
+		+ √  get the alis running
+			source ~/.bash_profile
+			
+8th
+	X stay JSLint conform (ongoing)
+		has some weird ideas and WAY too little options
+		
+9th
+	Block-Out!
+	
+10th
+	switch to JSHint
+	
+...
 	· add a git branching concept
 		· READ: https://git-scm.com/book/de/v1/Git-Branching-Einfaches-Branching-und-Merging
+		· might be worth a look: http://git-scm.com/book/en/v2
 
 ...th
 
+	· check rotation performance, might have direct impact on the game concept 
 	· how do I revert to a certain commit?
 	· move the object by keys
 	· add other objects
@@ -48,6 +80,12 @@ waypoints:
 	· let the screen follow the central object
 	· come up with a concept for a GUI
 		· divs in front of the canvas?
+		
+		
+		
+further reads (or looks)
+
+https://playcanvas.com/ 
 	
 
 	
