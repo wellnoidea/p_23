@@ -162,11 +162,10 @@ var colors = [
 	'YellowGreen' 	
 ];
 
-console.log(colors);
-
 
 var STATES = {
 	move : 0,
+	pause: false,
 };
 
 var score = 0;
@@ -182,14 +181,127 @@ var theSquare = {
 	speed : 0
 };
 
+var theBalls = []; // please avoid immature jokes (remember there are no real privates in JS)
+
+// Ponder: how about an assign function?
+var ABall = function () {
+	this.x = Math.random() * canvas.width;
+	this.y = 0;
+	this.maxSpeedX = 4;
+	this.speedX = 0.25;
+	this.speedY = 3;
+	this.doomed = false;
+};
+
+ABall.prototype.move = function () {
+	this.x += this.speedX;
+	this.y += this.speedY;
+};
+
+ABall.prototype.checkCollisions = function () {
+	
+		// the ball hits the square (not to be mixed up with shit and fan)
+		if (this.y > theSquare.y // the ball is lower than the square
+			&& this.x > theSquare.x // the ball is right of the square's left corner
+			&& this.x < theSquare.x + theSquare.width // the ball is left of the square's right corner
+			&& this.y < theSquare.y + theSquare.height
+		) {
+			play_multi_sound('beepandbass');
+			this.speedY = Math.abs(this.speedY) * -1;
+			this.speedX = 
+				this.maxSpeedX 
+				* (this.x - theSquare.x - theSquare.width / 2) / (theSquare.width / 2); 
+		}
+		
+		// ball hits the wall
+		//     left wall
+		if (this.x < 0) {
+			play_multi_sound('flipper');
+			this.x = 0;
+			this.speedX *= -1;
+		}
+		
+		//     right wall
+		if (this.x > canvas.width) {
+			play_multi_sound('flipper');
+			this.x = canvas.width;
+			this.speedX *= -1;
+		}
+		
+		//     the ceiling
+		if (this.y < 0) {
+			play_multi_sound('flipper');
+			this.y = 0;
+			this.speedY *= -1;
+		}
+		
+		//     the ground a.k.a. the death zone
+		if (this.y > canvas.width) {
+			play_multi_sound('crash');
+			// reset the ball to starting position
+			this.y = 0;
+			this.speedY *= -1;
+			this.doomed = true;
+		}
+} ;
+
+ABall.prototype.checkForBlocks = function (allBlocks) {
+	for (var i = 0; i < allBlocks.length; i++) {
+		if (this.x > allBlocks[i].x
+			&& this.x < allBlocks[i].x + allBlocks[i].width
+			&& this.y > allBlocks[i].y
+			&& this.y < allBlocks[i].y + allBlocks[i].height
+		) {
+			play_multi_sound('bliq');
+			allBlocks[i].x += 1000;
+			score++;
+			this.speedY *= 1.02;
+			
+			var ballsOldPosition = {
+				x : this.x - this.speedX,
+				y : this.y - this.speedY
+			};
+			// Check if the ball did hit in y direction
+			if (ballsOldPosition.x > allBlocks[i].x
+				&& ballsOldPosition.x < allBlocks[i].x + allBlocks[i].width) {
+				// if so reverse the y speed
+				this.speedX *= -1;		
+			} else {
+				// otherwise take the x
+				this.speedY *= -1;
+			}
+		}
+	}
+};
+
+// ###
+
+ABall.prototype.draw = function () {
+		context.beginPath();
+		context.arc(this.x, this.y, 4, 0, 2 * Math.PI, false);
+		context.fillStyle = 'green';
+		context.fill();
+		context.lineWidth = 2;
+		context.strokeStyle = '#003300';
+		context.stroke();
+};
+
+theBalls.push(new ABall());
+theBalls.push(new ABall());
+theBalls.push(new ABall());
+theBalls.push(new ABall()); // I said NO immature jokes...
+
+console.log(theBalls);
+
 var theBall = {
-	x : 0,
-	y : 0,
+	x : Math.random() * canvas.width,
+	y : 175,
 	maxSpeedX : 4,
 	speedX : 0.25,
 	speedY : 3
 };
 
+// This is quick an dirty. Like most of this. So very dirty...
 var theBlocks = function () {
 	var blocks = [];
 	for (var j = 0; j < 4; j++) {
@@ -205,8 +317,6 @@ var theBlocks = function () {
 	}
 	return blocks;
 } ();
-
-console.log(theBlocks);
 
 var renderABlock = function (aBlock) {
 	context.fillStyle = aBlock.color;
@@ -254,8 +364,6 @@ var checkCollision = function (aBlock) {
 	}
 };
 
-console.log(theBlocks);
-
 var lastTimestamp = 0;
 var averageTimePerFrame = 16;
 
@@ -263,142 +371,182 @@ var timepoint_1;
 var timepoint_2;
 var timepoint_average = 0;
 
+//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// THE LOOOP
 
 var theLoop = function (timestamp) {
 	
 	timepoint_1 = window.performance.now();
-
-	//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	// SQUARE
 	
-	// move the square
-	theSquare.speed += (theSquare.acceleration * STATES.move);
-	theSquare.speed *= 1 - theSquare.friction;
-	theSquare.x += theSquare.speed;
-	
-	// square hits wall
-	if (theSquare.x < 0) {
-		if (theSquare.speed < -1.3) {
-			play_multi_sound('switch');	
+	if ( ! STATES.pause) {
+			
+		//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+		// SQUARE
+		
+		// move the square
+		theSquare.speed += (theSquare.acceleration * STATES.move);
+		theSquare.speed *= 1 - theSquare.friction;
+		theSquare.x += theSquare.speed;
+		
+		// square hits wall
+		if (theSquare.x < 0) {
+			if (theSquare.speed < -1.3) {
+				play_multi_sound('switch');	
+			}
+			theSquare.x = 0;
+			theSquare.speed *= - theSquare.bounciness;
 		}
-		theSquare.x = 0;
-		theSquare.speed *= - theSquare.bounciness;
-	}
-	
-	// the right wall
-	if (theSquare.x + theSquare.width > canvas.width) {
-		if (theSquare.speed > 1.3) {
-			play_multi_sound('switch');	
+		
+		// the right wall
+		if (theSquare.x + theSquare.width > canvas.width) {
+			if (theSquare.speed > 1.3) {
+				play_multi_sound('switch');	
+			}
+			theSquare.x = canvas.width - theSquare.width;
+			theSquare.speed *= - theSquare.bounciness;
 		}
-		theSquare.x = canvas.width - theSquare.width;
-		theSquare.speed *= - theSquare.bounciness;
+		
+		//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+		// BALL
+		
+		// O.K. time to move this from one to many balls
+		
+		theBalls.forEach(function (aSingleBall) {
+			aSingleBall.move();
+		});
+		
+		theBalls.forEach(function (aSingleBall) {
+			aSingleBall.checkCollisions();
+		});
+		
+		// HACK!!!
+		theBalls.forEach(function (aSingleBall, index, array) {
+			if (aSingleBall.doomed) {
+				console.log(88);
+				theBalls.splice(index, 1);
+			}
+		});
+		
+		theBalls.forEach(function (aSingleBall) {
+			aSingleBall.checkForBlocks(theBlocks);
+		});
+		/*
+		// move the ball
+		theBall.x += theBall.speedX;
+		theBall.y += theBall.speedY;
+		
+		// the ball hits the square (not to be mixed up with shit and fan)
+		if (theBall.y > theSquare.y // the ball is lower than the square
+			&& theBall.x > theSquare.x // the ball is right of the square's left corner
+			&& theBall.x < theSquare.x + theSquare.width // the ball is left of the square's right corner
+			&& theBall.y < theSquare.y + theSquare.height
+		) {
+			play_multi_sound('beepandbass');
+			theBall.speedY = Math.abs(theBall.speedY) * -1;
+			theBall.speedX = 
+				theBall.maxSpeedX 
+				* (theBall.x - theSquare.x - theSquare.width / 2) / (theSquare.width / 2); 
+		}
+		
+		// ball hits the wall
+		//     left wall
+		if (theBall.x < 0) {
+			play_multi_sound('flipper');
+			theBall.x = 0;
+			theBall.speedX *= -1;
+		}
+		
+		//     right wall
+		if (theBall.x > canvas.width) {
+			play_multi_sound('flipper');
+			theBall.x = canvas.width;
+			theBall.speedX *= -1;
+		}
+		
+		//     the ceiling
+		if (theBall.y < 0) {
+			play_multi_sound('flipper');
+			theBall.y = 0;
+			theBall.speedY *= -1;
+		}
+		
+		//     the ground a.k.a. the death zone
+		if (theBall.y > canvas.width) {
+			play_multi_sound('crash');
+			// reset the ball to starting position
+			
+			theBall.y = 0;
+			theBall.speedY *= -1;
+		}
+		
+		
+		
+		//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+		// BLOCKS
+		
+		theBlocks.forEach(checkCollision);
+		*/
+		//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+		// RENDERINGS	
+		
+		timestamp = timestamp || 0;
+	    // clear the canvas, otherwise moving objects will create ,lines‘
+	    context.clearRect(0, 0, canvas.width, canvas.height);
+		
+		averageTimePerFrame = averageTimePerFrame * 0.95 + (timestamp - lastTimestamp) * 0.05;
+		
+		context.font = "12px Monaco";
+		context.fillStyle = "red";
+		context.fillText(averageTimePerFrame.toFixed(1), 10, 50);
+		context.fillText(timepoint_average.toFixed(1), 10, 64);
+		context.fillText('SCORE: ' + score, 10, 20);
+		
+		/*
+		context.beginPath();
+		context.arc(theBall.x, theBall.y, 4, 0, 2 * Math.PI, false);
+		context.fillStyle = 'green';
+		context.fill();
+		context.lineWidth = 2;
+		context.strokeStyle = '#003300';
+		context.stroke();
+		*/
+		
+		
+		context.fillRect(
+			theSquare.x,    	// upper left corner x
+			theSquare.y,     	// upper left corner Y
+			theSquare.width,	// width
+	        theSquare.height	// height
+		);
+		
+	    context.strokeStyle = "#000000";
+	    context.lineWidth   = 2;
+		context.strokeRect(
+			theSquare.x,    	// upper left corner x
+			theSquare.y,     	// upper left corner Y
+			theSquare.width,	// width
+	        theSquare.height	// height
+		);
+		
+		theBalls.forEach(function (aSingleBall){
+			aSingleBall.draw()
+		});
+		
+		theBlocks.forEach(renderABlock);
+		
+		
+		lastTimestamp = timestamp;
+		timepoint_average = window.performance.now() - timepoint_1;
 	}
-	
-	//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	// BALL
-	
-	// move the ball
-	theBall.x += theBall.speedX;
-	theBall.y += theBall.speedY;
-	
-	// the ball hits the square (not to be mixed up with shit and fan)
-	if (theBall.y > theSquare.y // the ball is lower than the square
-		&& theBall.x > theSquare.x // the ball is right of the square's left corner
-		&& theBall.x < theSquare.x + theSquare.width // the ball is left of the square's right corner
-		&& theBall.y < theSquare.y + theSquare.height
-	) {
-		play_multi_sound('beepandbass');
-		theBall.speedY = Math.abs(theBall.speedY) * -1;
-		theBall.speedX = 
-			theBall.maxSpeedX 
-			* (theBall.x - theSquare.x - theSquare.width / 2) / (theSquare.width / 2); 
-	}
-	
-	// ball hits the wall
-	//     left wall
-	if (theBall.x < 0) {
-		play_multi_sound('flipper');
-		theBall.x = 0;
-		theBall.speedX *= -1;
-	}
-	
-	//     right wall
-	if (theBall.x > canvas.width) {
-		play_multi_sound('flipper');
-		theBall.x = canvas.width;
-		theBall.speedX *= -1;
-	}
-	
-	//     the ceiling
-	if (theBall.y < 0) {
-		play_multi_sound('flipper');
-		theBall.y = 0;
-		theBall.speedY *= -1;
-	}
-	
-	//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	// BLOCKS
-	
-	theBlocks.forEach(checkCollision);
-	
-	//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	// RENDERINGS	
-	
-	timestamp = timestamp || 0;
-    // clear the canvas, otherwise moving objects will create ,lines‘
-    context.clearRect(0, 0, canvas.width, canvas.height);
-	
-	averageTimePerFrame = averageTimePerFrame * 0.95 + (timestamp - lastTimestamp) * 0.05;
-	
-	context.font = "12px Monaco";
-	context.fillStyle = "red";
-	//context.fillText(averageTimePerFrame.toFixed(1), 10, 50);
-	//context.fillText(timepoint_average.toFixed(1), 10, 64);
-	context.fillText('SCORE: ' + score, 10, 20);
-	
-	context.beginPath();
-	context.arc(theBall.x, theBall.y, 4, 0, 2 * Math.PI, false);
-	context.fillStyle = 'green';
-	context.fill();
-	context.lineWidth = 2;
-	context.strokeStyle = '#003300';
-	context.stroke();
-	
-	context.fillRect(
-		theSquare.x,    	// upper left corner x
-		theSquare.y,     	// upper left corner Y
-		theSquare.width,	// width
-        theSquare.height	// height
-	);
-	
-    context.strokeStyle = "#000000";
-    context.lineWidth   = 2;
-	context.strokeRect(
-		theSquare.x,    	// upper left corner x
-		theSquare.y,     	// upper left corner Y
-		theSquare.width,	// width
-        theSquare.height	// height
-	);
-	
-	
-	
-	theBlocks.forEach(renderABlock);
-	
-	
-	lastTimestamp = timestamp;
-	timepoint_average = window.performance.now() - timepoint_1;
 	window.requestAnimationFrame(theLoop);
 };
 
+//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+//–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
 // call the requestAnimationFrame for the first time
 window.requestAnimationFrame(theLoop);
-
-
-
-
-
-
-
 
 
 
@@ -426,6 +574,11 @@ document.addEventListener('keyup', function(event) {
 	// Right was pressed
 	if (event.keyCode == 39) {
         STATES.move = 0;
+	}
+	// P was pressed
+	
+	if (event.keyCode == 80) {
+        STATES.pause = ! STATES.pause;
 	}
 	
     // alert('Key number ' + event.keyCode + ' was pressed');

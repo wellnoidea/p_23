@@ -1,0 +1,23 @@
+<script>
+	
+	var STATE = { bool : false };
+	
+	var time = window.performance.now();
+	
+	for (var i = 0; i < 1000000; i++) {
+		if (STATE.bool) {
+			//
+		};
+	};
+	
+	console.log(window.performance.now() - time);
+	
+	time = window.performance.now();
+	
+	for (var i = 0; i < 1000000; i++) {
+		STATE.bool = false;
+	};
+	
+	console.log(window.performance.now() - time);
+	
+</script>

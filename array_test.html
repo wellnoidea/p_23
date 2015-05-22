@@ -1,0 +1,94 @@
+<script>
+	
+	var array = [
+		{ 
+			number: 1,
+			delete: true
+		},
+		{ 
+			number: 2,
+			delete: false
+		},
+		{ 
+			number: 3,
+			delete: false
+		},
+		{ 
+			number: 4,
+			delete: false
+		},
+		{ 
+			number: 5,
+			delete: false
+		},
+				{ 
+			number: 6,
+			delete: true
+		},
+	];
+	
+	var logNumber = function (element, index, array) {
+		console.log(element.number);
+	};
+	
+	// This does NOT work as intended!
+	var deleteIndicated = function (element, index, array) {
+		if (element.delete) {
+			array.splice(index, 1);
+			console.log(array);
+		}
+	};
+	
+	var deleteWhereByLambda = function (condition, haystack) {
+		for (var i = 0; i < haystack.length; i++) {
+			if (condition(haystack[i])) {
+				haystack.splice(i, 1);
+				i -= 1;
+			}
+		}
+		return haystack;
+	};
+	
+	Array.prototype.deleteWhere = function (condition) {
+		for (var i = 0; i < this.length; i++) {
+			if (condition(this[i])) {
+				this.splice(i, 1);
+				i -= 1;
+			}
+		}
+		return this;
+	};
+	
+	array.forEach(logNumber);	
+
+	console.log('post deletion array:');
+	
+	array.deleteWhere(
+		function (element) {
+			return element.delete;
+		}	
+	);
+	
+	//array.forEach(deleteIndicated);
+	/*
+	deleteWhereByLambda(
+		function (element) {
+			return element.delete;
+		},
+		array
+	);
+	*/
+	
+	array.forEach(logNumber);	
+	
+	var abc = [];
+	abc["my.key"] = "myValue";
+	abc[77] = 'lol';
+	abc.push(0);
+	abc.push(1);
+	abc.splice(1,1);
+	
+	console.log(abc);
+	
+	
+</script>

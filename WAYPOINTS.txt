@@ -60,20 +60,28 @@ waypoints:
 		has some weird ideas and WAY too little options
 		
 9th
-	Block-Out!
-		+ get key input
+	√ Block-Out!
+		+ √ get key input
 			http://jsfiddle.net/PQVnT/1274/
+		+ √ event handler
+		+ √ Sound
 	
 10th
-	switch to JSHint
+	add in game functionality
+		lives
+			+ deadzone
+		game over on 0 lives
+		next level on 0 blocks
+		some kind of power up
+		several balls
+		several squares
 	
-...
+...th
+
 	· add a git branching concept
 		· READ: https://git-scm.com/book/de/v1/Git-Branching-Einfaches-Branching-und-Merging
 		· might be worth a look: http://git-scm.com/book/en/v2
-
-...th
-
+	· switch to JSHint
 	· check rotation performance, might have direct impact on the game concept 
 	· how do I revert to a certain commit?
 	· move the object by keys

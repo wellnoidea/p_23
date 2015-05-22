@@ -1,0 +1,66 @@
+<script>
+	
+	var AProto = function () {
+		this.something = 88;	
+	};
+	
+	AProto.prototype.logSomething = function () {
+		console.log(this.something);
+	};
+	
+	AProto.prototype.logWat = function () {
+		console.log('Wat?');
+	};
+	
+	AProto.prototype.someValue = 3;
+	
+	var proto = new AProto();
+	
+	
+	// I have NO code completion here in VSC, why?
+	proto.logSomething();
+	
+	console.log(proto.someValue);
+	
+	proto.logWat();
+	
+	AProto.prototype.logWat = function () {
+		console.log('No, really, wat?');
+	};
+	
+	proto.logWat();
+	
+	console.log(AProto);
+	
+	console.log(AProto());
+	
+	console.log(new AProto());
+	
+	console.log(new AProto);
+	
+	console.log('--------------------------------------------------------------------');
+	
+	var FailedProto = {
+
+	};
+	
+	// fails: Uncaught TypeError: object is not a function
+	var fail = new FailedProto;
+	
+	// will fail too: Uncaught TypeError: Cannot set property 'someFun' of undefined
+	FailedProto.prototype.someFun = function () {
+		//
+	};
+	
+</script>
+
+
+
+
+
+
+
+
+
+
+
