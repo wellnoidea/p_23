@@ -16,7 +16,43 @@
         </style>
     </head>
     <body>
+        <!-- source: 
+            https://www.freesound.org/people/Corsica_S/sounds/34633/
+            https://www.freesound.org/people/Corsica_S/sounds/116720/
+            https://www.freesound.org/people/oceanictrancer/sounds/221362/
+            https://www.freesound.org/people/LoafDV/sounds/238290/
+        --> 
+        <audio id="flipper" src="34633_corsica-s_cd-flipper-07.mp3" preload="auto"></audio>
+        <audio id="bliq" src="116720_corsica-s_bliq.mp3" preload="auto"></audio>
+        <audio id="beepandbass" src="221362_oceanictrancer_beep-and-bass.mp3" preload="auto"></audio>
+        <audio id="switch" src="238290_loafdv_light-switch.mp3" preload="auto"></audio>
         <canvas id="canvas" width="500" height="500"></canvas>
-            <script src="script.js"></script>
+
+        <!--a href="javascript:play_multi_sound('flipper');">flipper</a><br />
+        <a href="javascript:play_multi_sound('bliq');">bliq</a><br /-->
+        
+        <!-- source: http://www.storiesinflight.com/html5/audio.html-->
+        <script type="text/javascript">
+        	var channel_max = 10;										// number of channels
+        	audiochannels = new Array();
+        	for (a=0;a<channel_max;a++) {									// prepare the channels
+        		audiochannels[a] = new Array();
+        		audiochannels[a]['channel'] = new Audio();						// create a new audio object
+        		audiochannels[a]['finished'] = -1;							// expected end time for this channel
+        	}
+        	function play_multi_sound(s) {
+        		for (a=0;a<audiochannels.length;a++) {
+        			thistime = new Date();
+        			if (audiochannels[a]['finished'] < thistime.getTime()) {			// is this channel finished?
+        				audiochannels[a]['finished'] = thistime.getTime() + document.getElementById(s).duration*1000;
+        				audiochannels[a]['channel'].src = document.getElementById(s).src;
+        				audiochannels[a]['channel'].load();
+        				audiochannels[a]['channel'].play();
+        				break;
+        			}
+        		}
+        	}
+        </script>
+        <script src="script.js"></script>
     </body>
 </html>

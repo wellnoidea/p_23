@@ -61,6 +61,8 @@ waypoints:
 		
 9th
 	Block-Out!
+		+ get key input
+			http://jsfiddle.net/PQVnT/1274/
 	
 10th
 	switch to JSHint
